@@ -1,6 +1,5 @@
 #!/usr/bin/env katana
 $e=load "prison"
-dwarfscript emit $e "prison.dws"
 $ehframe=dwarfscript compile "prison.dws"
 replace section $e ".eh_frame" $ehframe[0]
 replace section $e ".eh_frame_hdr" $ehframe[1]
