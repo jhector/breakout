@@ -111,6 +111,19 @@ void secure_self()
         abort();
 }
 
+void secure_read(char *dst, uint32_t size)
+{
+    int32_t i = 0;
+    for (; dst_whitelist[i].start && dst_whitelist[i].end; i++) {
+        if ((uint64_t)dst >= dst_whitelist[i].start &&
+            (uint64_t)dst <= dst_whitelist[i].end &&
+            (uint64_t)dst+size <= dst_whitelist[i].end) {
+            read(0, dst, size);
+            return;
+        }
+    }
+}
+
 void init()
 {
     Prisoner *curr = NULL;
@@ -170,6 +183,7 @@ void help()
     puts("Available commands:");
     puts("help - shows this help");
     puts("list - lists all prisoner");
+    puts("note - add a note to a prisoner");
     puts("exit - leave");
 }
 
@@ -196,6 +210,58 @@ void list()
     }
 }
 
+void note()
+{
+    char buf[8] = {0};
+    uint32_t cell = -1, size = -1;
+
+    write(1, "Cell: ", 6);
+    read(0, buf, sizeof(buf)-1);
+
+    cell = atoi(buf);
+
+    Prisoner *iter = head;
+    while (iter) {
+        if (iter->cell == cell)
+            break;
+
+        iter = iter->next;
+    }
+
+    if (!iter)
+        abort();
+
+    write(1, "Size: ", 6);
+    bzero(buf, sizeof(buf));
+    read(0, buf, sizeof(buf)-1);
+
+    size = atoi(buf);
+
+    if (size > iter->note_size && iter->note_size != 0) {
+        iter->note = (char*)realloc(iter->note, size);
+
+        if (!iter->note)
+            abort();
+
+        iter->note_size = size;
+    } else if (size <= iter->note_size) {
+        bzero(iter->note, iter->note_size);
+    } else {
+        iter->note = (char*)calloc(1, size);
+
+        if (!iter->note)
+            abort();
+
+        iter->note_size = size;
+    }
+
+    write(1, "Note: ", 6);
+
+    secure_read(iter->note, size);
+
+    return;
+}
+
 void interact()
 {
     char cmd[8] = {0};
@@ -208,6 +274,8 @@ void interact()
         help();
     } else if (!strncmp(cmd, "list", 4)) {
         list();
+    } else if (!strncmp(cmd, "note", 4)) {
+        note();
     } else if (!strncmp(cmd, "exit", 4)) {
         throw 2;
     } else {
