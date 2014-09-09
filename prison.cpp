@@ -38,6 +38,41 @@ uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
     return count;
 }
 
+void get_mapped_area(const char *section, const char *perm,
+        uint64_t *start, uint64_t *end)
+{
+    char buffer[256] = {0};
+    char *ptr = NULL;
+
+    int32_t maps = open("/proc/self/maps", S_IRUSR);
+    if (maps < 0)
+        goto fail;
+
+    while (read_until(maps, '\n', buffer, sizeof(buffer)-1)) {
+        if (!strstr(buffer, section) || !strstr(buffer, perm))
+            continue;
+
+        if ((ptr = strchr(buffer, '-')) == NULL)
+            goto fail_close;
+
+        *ptr = '\0';
+
+        if ((ptr = strchr(ptr+1, ' ')) == NULL)
+            goto fail_close;
+
+        *ptr = '\0';
+        *start = strtoul(buffer, NULL, 16);
+
+        ptr = buffer + strlen(buffer) + 1;
+        *end = strtoul(ptr, NULL, 16);
+    }
+
+fail_close:
+    close(maps);
+fail:
+    return;
+}
+
 void init()
 {
     Prisoner *curr = NULL;
