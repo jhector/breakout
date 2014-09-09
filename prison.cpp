@@ -12,13 +12,14 @@
 #define CWD ""
 
 typedef struct prisoner_s {
+    const char *risk;
     char *name;
     char *aka;
     uint32_t age;
     uint32_t cell;
     char *sentence;
-    char *note;
     uint32_t note_size;
+    char *note;
     struct prisoner_s *next;
 } Prisoner;
 
@@ -170,6 +171,7 @@ void init()
        asprintf(&curr->sentence, "%s", iter);
 
        curr->cell = counter;
+       curr->risk = "High";
        counter++;
     }
 
@@ -193,11 +195,13 @@ void list()
     Prisoner *iter = head;
     while (iter) {
         printf("Prisoner: %s (%s)\n" \
+               "Risk: %s\n" \
                "Age: %d\n" \
                "Cell: %d\n" \
                "Sentence: %s\n",
                iter->name ? iter->name : "",
                iter->aka ? iter->aka : "",
+               iter->risk ? iter->risk : "",
                iter->age,
                iter->cell,
                iter->sentence ? iter->sentence : "");
@@ -246,7 +250,7 @@ void note()
 
         iter->note_size = size;
     } else if (size <= iter->note_size) {
-        bzero(iter->note, iter->note_size);
+        // use exisiting
     } else {
         iter->note = (char*)calloc(1, size);
 
