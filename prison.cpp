@@ -103,7 +103,31 @@ void help()
 {
     puts("Available commands:");
     puts("help - shows this help");
+    puts("list - lists all prisoner");
     puts("exit - leave");
+}
+
+void list()
+{
+    Prisoner *iter = head;
+    while (iter) {
+        printf("Prisoner: %s (%s)\n" \
+               "Age: %d\n" \
+               "Cell: %d\n" \
+               "Sentence: %s\n",
+               iter->name ? iter->name : "",
+               iter->aka ? iter->aka : "",
+               iter->age,
+               iter->cell,
+               iter->sentence ? iter->sentence : "");
+
+        write(1, "Note: ", 6);
+        write(1, iter->note, iter->note_size);
+
+        puts("\n");
+
+        iter = iter->next;
+    }
 }
 
 void interact()
@@ -116,6 +140,8 @@ void interact()
 
     if (!strncmp(cmd, "help", 4)) {
         help();
+    } else if (!strncmp(cmd, "list", 4)) {
+        list();
     } else if (!strncmp(cmd, "exit", 4)) {
         throw 2;
     } else {
