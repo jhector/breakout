@@ -1,11 +1,15 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <sys/stat.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
-struct prisoner {
+#define CWD ""
+
+typedef struct prisoner_s {
     char *name;
     char *aka;
     uint32_t age;
@@ -13,8 +17,10 @@ struct prisoner {
     char *sentence;
     char *note;
     uint32_t note_size;
-    struct prisoner *next;
-};
+    struct prisoner_s *next;
+} Prisoner;
+
+static Prisoner *head = NULL;
 
 uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
 {
@@ -30,6 +36,67 @@ uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
 
     out[count] = '\0';
     return count;
+}
+
+void init()
+{
+    Prisoner *curr = NULL;
+    int32_t fd = -1;
+    uint32_t counter = 0;
+
+    char buffer[128] = {0};
+    char *err = NULL;
+    char *iter = NULL;
+    char *ptr = NULL;
+
+    fd = open(CWD"prisoner", S_IRUSR);
+    if (fd < 0) {
+        err = (char*)"! failed to open prisoner database";
+        goto fail;
+    }
+
+    while (read_until(fd, '\n', buffer, sizeof(buffer))) {
+       head = (Prisoner*)calloc(1, sizeof(Prisoner));
+       if (!head) {
+           err = (char*)"! failed to allocate memory";
+           goto fail;
+       }
+
+       head->next = curr;
+       curr = head;
+
+       iter = buffer;
+       if ((ptr = strchr(iter, ':')))
+           *ptr = '\0';
+
+       asprintf(&curr->name, "%s", iter);
+
+       iter = ptr + 1;
+       if ((ptr = strchr(iter, ':')))
+           *ptr = '\0';
+
+       asprintf(&curr->aka, "%s", iter);
+
+       iter = ptr + 1;
+       if ((ptr = strchr(iter, ':')))
+           *ptr = '\0';
+
+       curr->age = atoi(iter);
+
+       iter = ptr + 1;
+
+       asprintf(&curr->sentence, "%s", iter);
+
+       curr->cell = counter;
+       counter++;
+    }
+
+    close(fd);
+    return;
+
+fail:
+    puts(err);
+    abort();
 }
 
 void help()
@@ -58,6 +125,8 @@ void interact()
 
 int32_t main()
 {
+    init();
+
     while (1) {
         try {
             interact();
