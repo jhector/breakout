@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <stdint.h>
 #include <string.h>
@@ -20,7 +21,14 @@ typedef struct prisoner_s {
     struct prisoner_s *next;
 } Prisoner;
 
+typedef struct maprange_s {
+    uint64_t start;
+    uint64_t end;
+} Maprange;
+
 static Prisoner *head = NULL;
+
+static Maprange *dst_whitelist = NULL;
 
 uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
 {
@@ -73,6 +81,36 @@ fail:
     return;
 }
 
+void secure_self()
+{
+    uint64_t start = 0;
+    uint64_t end = 0;
+
+    dst_whitelist = (Maprange*)mmap(0, 4096, PROT_READ | PROT_WRITE,
+            MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+
+    if (dst_whitelist == MAP_FAILED)
+        abort();
+
+    get_mapped_area("heap", "rw-p", &start, &end);
+    if (!start || !end)
+        abort();
+
+    dst_whitelist[0].start = start;
+    dst_whitelist[0].end = end;
+
+    start = end = 0;
+    get_mapped_area("libgcc", "rw-p", &start, &end);
+    if (!start || !end)
+        abort();
+
+    dst_whitelist[1].start = start;
+    dst_whitelist[1].end = start + 0x1100;
+
+    if (mprotect(dst_whitelist, 4096, PROT_READ) < 0)
+        abort();
+}
+
 void init()
 {
     Prisoner *curr = NULL;
@@ -80,22 +118,17 @@ void init()
     uint32_t counter = 0;
 
     char buffer[128] = {0};
-    char *err = NULL;
     char *iter = NULL;
     char *ptr = NULL;
 
     fd = open(CWD"prisoner", S_IRUSR);
-    if (fd < 0) {
-        err = (char*)"! failed to open prisoner database";
-        goto fail;
-    }
+    if (fd < 0)
+        abort();
 
     while (read_until(fd, '\n', buffer, sizeof(buffer))) {
        head = (Prisoner*)calloc(1, sizeof(Prisoner));
-       if (!head) {
-           err = (char*)"! failed to allocate memory";
-           goto fail;
-       }
+       if (!head)
+           abort();
 
        head->next = curr;
        curr = head;
@@ -127,11 +160,9 @@ void init()
     }
 
     close(fd);
-    return;
 
-fail:
-    puts(err);
-    abort();
+    secure_self();
+    return;
 }
 
 void help()
