@@ -12,4 +12,4 @@ all:
 	$(CC) $(CFLAGS) $(COOKIES) $(ASLR) $(RELRO) $(SRCS) -o $(OUT)
 
 debug:
-	$(CC) $(CFLAGS) -DDEBUG -g $(SRCS) -o $($OUT)
+	$(CC) $(CFLAGS) -DDEBUG -g $(SRCS) -o $(OUT)
