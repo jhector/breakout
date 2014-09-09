@@ -1,3 +1,5 @@
 *.dws
+peda-session-*
+.gdb_history
 prison
 prison_mod
