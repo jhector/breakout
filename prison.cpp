@@ -5,6 +5,13 @@
 #include <string.h>
 #include <unistd.h>
 
+void help()
+{
+    puts("Available commands:");
+    puts("help - shows this help");
+    puts("exit - leave");
+}
+
 void interact()
 {
     char cmd[8] = {0};
@@ -13,7 +20,9 @@ void interact()
 
     read(0, cmd, sizeof(cmd)-1);
 
-    if (!strncmp(cmd, "exit", 4)) {
+    if (!strncmp(cmd, "help", 4)) {
+        help();
+    } else if (!strncmp(cmd, "exit", 4)) {
         throw 2;
     } else {
         throw 1;
