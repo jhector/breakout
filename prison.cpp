@@ -277,6 +277,8 @@ void interact()
         list();
     } else if (!strncmp(cmd, "note", 4)) {
         note();
+    } else if (!strncmp(cmd, "\n", 1)) {
+        // ignore
     } else if (!strncmp(cmd, "exit", 4)) {
         throw 2;
     } else {
