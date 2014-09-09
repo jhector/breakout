@@ -5,6 +5,17 @@
 #include <string.h>
 #include <unistd.h>
 
+struct prisoner {
+    char *name;
+    char *aka;
+    uint32_t age;
+    uint32_t cell;
+    char *sentence;
+    char *note;
+    uint32_t note_size;
+    struct prisoner *next;
+};
+
 uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
 {
     uint32_t count = 0;
