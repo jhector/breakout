@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <fcntl.h>
 
 #define CWD ""
@@ -298,5 +299,5 @@ int32_t main()
         }
     }
 
-    return 0;
+    kill(getpid(), 9);
 }
