@@ -251,10 +251,8 @@ void note()
             abort();
 
         iter->note_size = size;
-    } else if (size <= iter->note_size) {
-        // use exisiting
-    } else {
-        iter->note = (char*)calloc(1, size);
+    } else if (iter->note_size == 0) {
+        iter->note = (char*)malloc(size);
 
         if (!iter->note)
             abort();
