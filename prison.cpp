@@ -5,6 +5,22 @@
 #include <string.h>
 #include <unistd.h>
 
+uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
+{
+    uint32_t count = 0;
+    char input;
+
+    while (read(fd, &input, 1) == 1 &&
+            input != term &&
+            count < max) {
+        out[count] = input;
+        count++;
+    }
+
+    out[count] = '\0';
+    return count;
+}
+
 void help()
 {
     puts("Available commands:");
