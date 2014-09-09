@@ -29,8 +29,9 @@ typedef struct maprange_s {
 } Maprange;
 
 static Prisoner *head = NULL;
-
 static Maprange *dst_whitelist = NULL;
+
+uint8_t occupied = 0;
 
 uint32_t read_until(int32_t fd, char term, char *out, uint32_t max)
 {
@@ -187,6 +188,7 @@ void help()
     puts("help - shows this help");
     puts("list - lists all prisoner");
     puts("note - add a note to a prisoner");
+    puts("punish - put a prisoner into the bunker");
     puts("exit - leave");
 }
 
@@ -267,6 +269,37 @@ void note()
     return;
 }
 
+void punish()
+{
+    char buf[8];
+    uint32_t cell = -1;
+
+    if (occupied) {
+        write(1, "bunker is occupied\n", 19);
+        return;
+    }
+
+    write(1, "Cell: ", 6);
+    read(0, buf, sizeof(buf)-1);
+
+    cell = atoi(buf);
+    Prisoner *iter = head;
+    while (iter) {
+        if (iter->cell == cell)
+            break;
+
+        iter = iter->next;
+    }
+
+    if (!iter)
+        return;
+
+    free(iter);
+    occupied = 1;
+
+    return;
+}
+
 void interact()
 {
     char cmd[8] = {0};
@@ -281,6 +314,8 @@ void interact()
         list();
     } else if (!strncmp(cmd, "note", 4)) {
         note();
+    } else if (!strncmp(cmd, "punish", 6)) {
+        punish();
     } else if (!strncmp(cmd, "\n", 1)) {
         // ignore
     } else if (!strncmp(cmd, "exit", 4)) {
