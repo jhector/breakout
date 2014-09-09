@@ -3,7 +3,7 @@ CFLAGS=-std=c++11 -masm=intel -Wall -Wextra
 COOKIES=-fstack-protector-all
 ASLR=-pie -fPIE
 RELRO=-Wl,-z,relro,-z,now
-OPT=-O2 -s
+OPT=-O2
 
 LIBS=
 OUT=prison
