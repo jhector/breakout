@@ -1,4 +1,5 @@
 *.dws
+*.dat
 peda-session-*
 .gdb_history
 prison
