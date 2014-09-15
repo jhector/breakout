@@ -1,5 +1,7 @@
 *.dws
 *.dat
+*.tar.gz
+*.bak
 peda-session-*
 .gdb_history
 prison
