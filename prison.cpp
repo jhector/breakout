@@ -11,6 +11,11 @@
 
 #define CWD ""
 
+#define ENTRY_SIZE 48
+#define ENTRIES 7
+
+#define CACHE_OFFSET 0x920 // Ubuntu 14.04.1 LTS
+
 typedef struct prisoner_s {
     const char *risk;
     char *name;
@@ -107,8 +112,8 @@ void secure_self()
     if (!start || !end)
         abort();
 
-    dst_whitelist[1].start = start;
-    dst_whitelist[1].end = start + 0x1100;
+    dst_whitelist[1].start = start + CACHE_OFFSET;
+    dst_whitelist[1].end = start + CACHE_OFFSET + ENTRY_SIZE*ENTRIES;
 
     if (mprotect(dst_whitelist, 4096, PROT_READ) < 0)
         abort();
