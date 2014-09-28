@@ -14,7 +14,7 @@
 #define ENTRY_SIZE 48
 #define ENTRIES 7
 
-#define CACHE_OFFSET 0x920 // Ubuntu 14.04.1 LTS
+#define CACHE_OFFSET 0x8c0 // Ubuntu 14.04.1 LTS
 
 typedef struct prisoner_s {
     const char *risk;
