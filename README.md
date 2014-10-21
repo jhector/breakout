@@ -151,7 +151,7 @@ begin EXPRESSION
 end EXPRESSION
 ```
 
-this will set r7 register to the result of the expression, r7 in DWARF is RSP when the exception returns. With **DW_OP_breg7** we read the value of RSP ans add or subtract an offset to the value. This expression will set the stack pointer to point to our new RSP value, remember that we jump to **pop rsp** instead of the actual catch block.
+this will set r7 register to the result of the expression, r7 in DWARF is RSP when the exception returns. With **DW_OP_breg7** we read the value of RSP and add or subtract an offset to the value. This expression will set the stack pointer to point to our new RSP value, remember that we jump to **pop rsp** instead of the actual catch block.
 
 Using the following:
 ```
@@ -195,5 +195,8 @@ Heap ROP (needs to contain r13 - r15)
 ```
 
 From there it is just simple ROP which executes **system()** with */bin/bash*.
+
+Using **katana** we can compile the dwarfscript and obtain the binary data that needs to be placed inside the heap.
+Now we triggern an exception which triggers our DWARF code and we should get a shell.
 
 tl;dr we use the DWARF bytecode to set RSP to the ROP chain in the heap which pops RDI and executes system()
