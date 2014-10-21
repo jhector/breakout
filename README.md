@@ -8,10 +8,10 @@ If you want to know more about DWARF bytecode, check out the paper *Exploiting t
 ## Summary
 
 * create a fake program header, .eh_frame_hdr section, .eh_frame section and .gcc_except_table section in heap
+* prepare a small ROP chain on the heap
 * overwrite the cached program header pointer inside libgcc (p_eh_frame_hdr in struct frame_hdr_cache_element)
 * trigger an exception to run our DWARF code inside our faked .eh_frame section
 * the DWARF code does the following:
-    * prepare a small ROP chain on the heap
     * ROP chain will pop **rdi**
     * final return is to  **system()**
     * pivot **rsp** to point to new **rsp** value
