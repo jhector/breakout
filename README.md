@@ -19,7 +19,7 @@ If you want to know more about DWARF bytecode, check out the paper *Exploiting t
 
 tl;dr at bottom of the page
 
-## Write-up
+## Little explanation
 The bug in the application is fairly simple, when free()ing a prisoner, the free()ed element is still present inside the linked list.
 Using the note functionality we can allocate a block of the same size and control the entire struct.
 
